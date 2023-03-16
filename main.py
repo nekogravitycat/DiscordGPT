@@ -14,10 +14,10 @@ available_servers = os.environ.get("available_servers").split(";")
 is_typing = False
 
 
-def log(data: str) -> None:
+def log(data: str):
 	print(data)
 	now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S")
-	with open("log/main.log", "a") as f:
+	with open("log/main.log", "a", encoding="utf-8") as f:
 		f.write(f"[{now}] {data}\n")
 
 
@@ -49,7 +49,6 @@ class GPT:
 		new_prompt = {"role": "user", "content": content}
 
 		new_prompt_token = num_prompts_tokens([new_prompt])
-		log(str(new_prompt_token))
 
 		if new_prompt_token > 350:
 			log("prompt too long")
@@ -110,7 +109,7 @@ async def forget(ctx):
 @bot.slash_command(description="自訂 GPT 的性格（類似初始洗腦）", guild_ids=available_servers)
 @discord.option("prompt", description="洗腦的內容", required=True)
 async def brain_wash(ctx, prompt):
-	log(f"system prompt received from {ctx.user}: {ctx.content}")
+	log(f"system prompt received from {ctx.author}: {prompt}")
 	new_sys_prompt = {"role": "user", "content": prompt}
 
 	sys_prompt_token = num_prompts_tokens([new_sys_prompt])
