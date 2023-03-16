@@ -7,14 +7,10 @@ import datetime
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
 
-ai_chat_channel = ""
+ai_chat_channel = None
 sys_prompt = "你是個幽默風趣的人，並且使用繁體中文聊天。"
 
 available_servers = os.environ.get("available_servers").split(";")
-is_typing = False
-
-if os.environ.get("ai_chat_channel"):
-	ai_chat_channel = os.environ.get("ai_chat_channel")
 
 
 def log(data: str):
@@ -103,7 +99,7 @@ async def start_chat(ctx):
 @bot.slash_command(description="結束與 GPT 的聊天", guild_ids=available_servers)
 async def stop_chat(ctx):
 	global ai_chat_channel
-	ai_chat_channel = ""
+	ai_chat_channel = None
 	await ctx.respond("掰啦，不要太想我 ;w;")
 
 
