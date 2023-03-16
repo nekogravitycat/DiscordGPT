@@ -142,7 +142,6 @@ async def on_message(message):
 		is_typing = False
 
 
-openai.api_key = os.environ.get("openai_api_key")
-
 print("bot running!")
+openai.api_key = os.environ.get("openai_api_key")
 bot.run(os.environ.get("discord_bot_token"))
