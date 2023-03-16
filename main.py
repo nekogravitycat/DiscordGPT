@@ -63,7 +63,7 @@ class GPT:
 			self.__history.pop(0)
 
 		prompts = [
-			{"role": "system", "content": "你是個幽默風趣的人，並且使用繁體中文聊天。"},
+			{"role": "system", "content": sys_prompt},
 			{"role": "user", "content": sys_prompt}
 		]
 
