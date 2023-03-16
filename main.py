@@ -14,6 +14,13 @@ available_servers = os.environ.get("available_servers").split(";")
 is_typing = False
 
 
+def log(data: str) -> None:
+	print(data)
+	now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S")
+	with open("log/main.log", "a") as f:
+		f.write(f"[{now}] {data}\n")
+
+
 def num_prompts_tokens(messages):
 	try:
 		encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
@@ -38,14 +45,14 @@ class GPT:
 		self.__latest_chat_time = datetime.datetime.now()
 
 	def chat(self, user, content) -> str:
-		print(f"prompt received from {user}: {content}")
+		log(f"prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
 		new_prompt_token = num_prompts_tokens([new_prompt])
-		print(new_prompt_token)
+		log(str(new_prompt_token))
 
 		if new_prompt_token > 350:
-			print("prompt too long")
+			log("prompt too long")
 			return "打這麼多誰他媽看得完"
 
 		time_diff = datetime.datetime.now() - self.__latest_chat_time
@@ -67,7 +74,7 @@ class GPT:
 		r = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=prompts, user=user)
 		reply = r["choices"][0]["message"]["content"]
 
-		print(f"chat generated: {reply}")
+		log(f"chat generated: {reply}")
 		self.__history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()
@@ -103,12 +110,12 @@ async def forget(ctx):
 @bot.slash_command(description="自訂 GPT 的性格（類似初始洗腦）", guild_ids=available_servers)
 @discord.option("prompt", description="洗腦的內容", required=True)
 async def brain_wash(ctx, prompt):
-	print(f"system prompt received from {ctx.user}: {ctx.content}")
+	log(f"system prompt received from {ctx.user}: {ctx.content}")
 	new_sys_prompt = {"role": "user", "content": prompt}
 
 	sys_prompt_token = num_prompts_tokens([new_sys_prompt])
 	if sys_prompt_token > 100:
-		print("system prompt too long")
+		log("system prompt too long")
 		await ctx.respond("哪有人洗腦洗那麼多的啦，拒絕！")
 		return
 
@@ -142,6 +149,6 @@ async def on_message(message):
 		is_typing = False
 
 
-print("bot running!")
+log("bot running!")
 openai.api_key = os.environ.get("openai_api_key")
 bot.run(os.environ.get("discord_bot_token"))
