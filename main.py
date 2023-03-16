@@ -44,7 +44,7 @@ class GPT:
 		self.__history = []
 		self.__latest_chat_time = datetime.datetime.now()
 
-	def chat(self, user, content) -> str:
+	async def chat(self, user, content) -> str:
 		log(f"prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
@@ -71,7 +71,7 @@ class GPT:
 			prompts.append(h)
 
 		try:
-			r = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=prompts, user=user)
+			r = await openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=prompts, user=user)
 			reply = r["choices"][0]["message"]["content"]
 		except Exception as e:
 			log(repr(e))
@@ -141,7 +141,7 @@ async def on_message(message):
 
 	if message.channel.id == ai_chat_channel:
 		async with message.channel.typing():
-			await message.reply(gpt.chat(f"{message.author.name}-{message.author.id}", message.content))
+			await message.reply(await gpt.chat(f"{message.author.name}-{message.author.id}", message.content))
 
 
 log("bot running!")
