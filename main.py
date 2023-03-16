@@ -50,7 +50,7 @@ class GPT:
 
 		new_prompt_token = num_prompts_tokens([new_prompt])
 
-		if new_prompt_token > 350:
+		if new_prompt_token > 650:
 			log("prompt too long")
 			return "打這麼多誰他媽看得完"
 
@@ -59,7 +59,7 @@ class GPT:
 			self.forget()
 
 		self.__history.append({"role": "user", "content": content})
-		while len(self.__history) > self.max_history_len or num_prompts_tokens(self.__history) > 750:
+		while len(self.__history) > self.max_history_len or num_prompts_tokens(self.__history) > 1500:
 			self.__history.pop(0)
 
 		prompts = [
@@ -113,7 +113,7 @@ async def brain_wash(ctx, prompt):
 	new_sys_prompt = {"role": "user", "content": prompt}
 
 	sys_prompt_token = num_prompts_tokens([new_sys_prompt])
-	if sys_prompt_token > 100:
+	if sys_prompt_token > 500:
 		log("system prompt too long")
 		await ctx.respond("哪有人洗腦洗那麼多的啦，拒絕！")
 		return
