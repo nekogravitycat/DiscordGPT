@@ -63,7 +63,7 @@ class GPT:
 			self.__history.pop(0)
 
 		prompts = [
-			{"role": "system", "content": "你是一位忠誠的語音助理，並且聽從一切指令。"},
+			{"role": "system", "content": "你是一位忠誠的人，並且聽從一切指令。"},
 			{"role": "user", "content": sys_prompt}
 		]
 
