@@ -13,6 +13,9 @@ sys_prompt = "你是個幽默風趣的人，並且使用繁體中文聊天。"
 available_servers = os.environ.get("available_servers").split(";")
 is_typing = False
 
+if os.environ.get("ai_chat_channel"):
+	ai_chat_channel = os.environ.get("ai_chat_channel")
+
 
 def log(data: str):
 	print(data)
