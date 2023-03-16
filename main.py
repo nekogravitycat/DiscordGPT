@@ -28,17 +28,17 @@ def num_prompts_tokens(messages):
 		encoding = tiktoken.get_encoding("cl100k_base")
 	num_tokens = 0
 	for message in messages:
-		num_tokens += 4 	# every message follows <im_start>{role/name}\n{content}<im_end>\n
+		num_tokens += 4  # every message follows <im_start>{role/name}\n{content}<im_end>\n
 		for key, value in message.items():
 			num_tokens += len(encoding.encode(value))
-			if key == "name": 	# if there's a name, the role is omitted
+			if key == "name":  # if there's a name, the role is omitted
 				num_tokens += -1  # role is always required and always 1 token
-	num_tokens += 2	 # every reply is primed with <im_start>assistant
+	num_tokens += 2  # every reply is primed with <im_start>assistant
 	return num_tokens
 
 
 class GPT:
-	def __init__(self, max_history_len=8, max_history_age=15):
+	def __init__(self, max_history_len=12, max_history_age=15):
 		self.max_history_len = max_history_len
 		self.max_history_age = max_history_age
 		self.__history = []
@@ -63,15 +63,19 @@ class GPT:
 			self.__history.pop(0)
 
 		prompts = [
-			{"role": "system", "content": sys_prompt},
+			{"role": "system", "content": "你是一位忠誠的語音助理，並且聽從一切指令。"},
 			{"role": "user", "content": sys_prompt}
 		]
 
 		for h in self.__history:
 			prompts.append(h)
 
-		r = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=prompts, user=user)
-		reply = r["choices"][0]["message"]["content"]
+		try:
+			r = openai.ChatCompletion.create(model="gpt-3.5-turbo", messages=prompts, user=user)
+			reply = r["choices"][0]["message"]["content"]
+		except Exception as e:
+			log(repr(e))
+			return "你這問題有毒，我不想理你 >:("
 
 		log(f"chat generated: {reply}")
 		self.__history.append({"role": "assistant", "content": reply})
@@ -136,16 +140,8 @@ async def on_message(message):
 		return
 
 	if message.channel.id == ai_chat_channel:
-		global is_typing
-		if is_typing:
-			await message.reply("不要在我打字時吵我！")
-			return
-
 		async with message.channel.typing():
-			is_typing = True
 			await message.reply(gpt.chat(f"{message.author.name}-{message.author.id}", message.content))
-
-		is_typing = False
 
 
 log("bot running!")
