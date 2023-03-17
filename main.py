@@ -3,6 +3,8 @@ import openai
 import tiktoken
 import discord
 import datetime
+import opencc
+
 
 intents = discord.Intents.all()
 bot = discord.Bot(intents=intents)
@@ -72,6 +74,7 @@ class GPT:
 		try:
 			r = await openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=prompts, user=user)
 			reply = r["choices"][0]["message"]["content"]
+			reply = opencc.Opencc("s2twp.json").convert(reply)
 		except Exception as e:
 			log(repr(e))
 			return "你這問題有毒，我不想理你 >:("
