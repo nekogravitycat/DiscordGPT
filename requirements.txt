@@ -1,4 +1,4 @@
 openai
 tiktoken
 py-cord
-opencc
+opencc-python-reimplemented
