@@ -19,10 +19,10 @@ async def start_chat(ctx):
 
 @bot.slash_command(description="結束與 GPT 的聊天", guild_ids=available_servers)
 async def stop_chat(ctx):
-	if gpts.pop(ctx.channel_id, True):
-		await ctx.respond("掰啦，不要太想我 ;w;")
-	else:
+	if not gpts.pop(ctx.channel_id, None):
 		await ctx.respond("？我本來就沒在這聊天啊")
+	else:
+		await ctx.respond("掰啦，不要太想我 ;w;")
 
 
 @bot.slash_command(description="讓 GPT 馬上遺忘先前的對話", guild_ids=available_servers)
