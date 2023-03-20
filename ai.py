@@ -62,7 +62,7 @@ class GPT:
 			reply = opencc.OpenCC("s2twp").convert(reply)
 		except Exception as e:
 			log(repr(e))
-			return "你這問題有毒，我不想理你 >:("
+			return "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```"
 
 		log(f"chat generated: {reply}")
 		self.__history.append({"role": "assistant", "content": reply})
