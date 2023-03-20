@@ -37,10 +37,12 @@ class GPT:
 		log(f"prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
+		# check prompt length
 		if num_prompts_tokens([new_prompt]) > 650:
 			log("prompt too long")
 			return "打這麼多誰他媽看得完"
 
+		# forget history that's older than max_history_age
 		time_diff = datetime.datetime.now() - self.__latest_chat_time
 		if time_diff.total_seconds() / 60 > self.max_history_age:
 			self.forget()
@@ -65,8 +67,10 @@ class GPT:
 			reply = r["choices"][0]["message"]["content"]
 			reply = opencc.OpenCC("s2twp").convert(reply)
 		except asyncio.TimeoutError:
+			log("asyncio.TimeoutError")
 			return "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```"
 		except openai.error.Timeout:
+			log("openai.error.Timeout")
 			return "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```"
 		except Exception as e:
 			log(repr(e))
