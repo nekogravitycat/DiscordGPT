@@ -62,16 +62,19 @@ class GPT:
 		try:
 			r = await asyncio.wait_for(
 				openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=prompts, user=user),
-				timeout=60
+				timeout=120
 			)
 			reply = r["choices"][0]["message"]["content"]
 			reply = opencc.OpenCC("s2twp").convert(reply)
+
 		except asyncio.TimeoutError as e:
 			log(f"asyncio.TimeoutError:\n{repr(e)}")
 			return "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```"
+
 		except openai.error.Timeout as e:
 			log(f"openai.error.Timeout\n{repr(e)}")
 			return "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```"
+
 		except Exception as e:
 			log(repr(e))
 			return "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```"
