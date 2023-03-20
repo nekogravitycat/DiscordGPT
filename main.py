@@ -39,7 +39,7 @@ async def brain_wash(ctx, prompt):
 
 	if ai.num_prompts_tokens([{"role": "user", "content": prompt}]) > 500:
 		log("system prompt too long")
-		await ctx.respond("哪有人洗腦洗那麼多的啦，拒絕！")
+		await ctx.respond("太多了太多了！是想把我洗成智障嗎？！拒絕！！")
 		return
 
 	gpt = gpts.get(ctx.channel.id)
@@ -57,6 +57,9 @@ async def reset(ctx):
 @bot.event
 async def on_message(message):
 	if message.author.id == bot.user.id:
+		return
+
+	if message.content.startswith("#"):
 		return
 
 	if message.channel.id in gpts:
