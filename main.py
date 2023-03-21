@@ -3,17 +3,16 @@ import discord
 from log import log
 import ai
 
-bot = discord.Bot(intents=discord.Intents.all())
-available_servers: list = os.environ.get("available_servers").split(";")
-chats: dict = {}
+bot: discord.Bot = discord.Bot(intents=discord.Intents.all())
+available_servers: list[str] = os.environ.get("available_servers").split(";")
 
 
 class Chat:
 	def __init__(self):
-		self.gpt = ai.GPT()
-		self.__messages = []
+		self.gpt: ai.GPT = ai.GPT()
+		self.__messages: list[discord.Message] = []
 
-	async def add_message(self, message):
+	async def add_message(self, message: discord.Message):
 		self.__messages.append(message)
 		if len(self.__messages) == 1:
 			await self.__reply_next()
@@ -27,6 +26,9 @@ class Chat:
 
 			self.__messages.pop(0)
 			await self.__reply_next()
+
+
+chats: dict[str, Chat] = {}
 
 
 @bot.slash_command(description="開始與 GPT 聊天（僅限使用指令的頻道）", guild_ids=available_servers)

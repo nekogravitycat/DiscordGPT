@@ -7,7 +7,7 @@ import datetime
 from log import log
 
 
-def num_prompts_tokens(messages):
+def num_prompts_tokens(messages: list):
 	try:
 		encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 	except KeyError:
@@ -26,14 +26,14 @@ def num_prompts_tokens(messages):
 
 
 class GPT:
-	def __init__(self, max_history_len=12, max_history_age=15, sys_prompt="你是個幽默風趣的人，喜歡與人聊天。"):
+	def __init__(self, max_history_len: int = 12, max_history_age: int = 15, sys_prompt: str = "你是個幽默風趣的人，喜歡與人聊天。"):
 		self.max_history_len = max_history_len
 		self.max_history_age = max_history_age
 		self.sys_prompt = sys_prompt
 		self.__history = []
 		self.__latest_chat_time = datetime.datetime.now()
 
-	async def chat(self, user, content) -> str:
+	async def chat(self, user: str, content: str) -> str:
 		log(f"prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
