@@ -80,7 +80,7 @@ async def on_message(message):
 	if message.author.id == bot.user.id:
 		return
 
-	if message.content.startswith("#"):
+	if message.content.startswith("#") or message.content.startswith("＃"):
 		return
 
 	if message.channel.id in chats:
