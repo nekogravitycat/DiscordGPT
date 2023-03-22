@@ -21,8 +21,12 @@ class Chat:
 		if len(self.__messages) > 0:
 			message = self.__messages[0]
 
-			async with message.channel.typing():
-				await message.reply(await self.gpt.chat(f"{message.author.name}-{message.author.id}", message.content))
+			try:
+				async with message.channel.typing():
+					await message.reply(await self.gpt.chat(f"{message.author.name}-{message.author.id}", message.content))
+
+			except Exception as e:
+				log(repr(e))
 
 			self.__messages.pop(0)
 			await self.__reply_next()
