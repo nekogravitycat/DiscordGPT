@@ -4,10 +4,11 @@ import openai
 import tiktoken
 import opencc
 import datetime
-from log import log
+from src.log import log
+from src import config
 
 
-def num_prompts_tokens(messages: list):
+def count_token(messages: list[dict]):
 	try:
 		encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 	except KeyError:
@@ -26,11 +27,9 @@ def num_prompts_tokens(messages: list):
 
 
 class GPT:
-	def __init__(self, max_history_len: int = 12, max_history_age: int = 15, sys_prompt: str = "你是個幽默風趣的人，喜歡與人聊天。"):
-		self.max_history_len = max_history_len
-		self.max_history_age = max_history_age
-		self.sys_prompt = sys_prompt
-		self.__history = []
+	def __init__(self):
+		self.sys_prompt: str = config.default_sys_prompt
+		self.history: list[dict] = []
 		self.__latest_chat_time = datetime.datetime.now()
 
 	async def chat(self, user: str, content: str) -> str:
@@ -38,31 +37,28 @@ class GPT:
 		new_prompt = {"role": "user", "content": content}
 
 		# check prompt length
-		if num_prompts_tokens([new_prompt]) > 650:
+		if count_token([new_prompt]) > config.max_prompt_token:
 			log("prompt too long")
-			return "打這麼多誰他媽看得完"
+			return "打這麼多誰他媽看得完？"
 
 		# forget history that's older than max_history_age
 		time_diff = datetime.datetime.now() - self.__latest_chat_time
-		if time_diff.total_seconds() / 60 > self.max_history_age:
-			self.forget()
+		if time_diff.total_seconds() / 60 > config.max_history_age:
+			self.history.clear()
 
-		self.__history.append({"role": "user", "content": content})
-		while len(self.__history) > self.max_history_len or num_prompts_tokens(self.__history) > 1500:
-			self.__history.pop(0)
+		self.history.append({"role": "user", "content": content})
+		while len(self.history) > config.max_history_len or count_token(self.history) > config.max_history_token:
+			self.history.pop(0)
 
-		prompts = [
-			{"role": "system", "content": "你是一位忠誠的人，並且聽從一切指令。"},
-			{"role": "user", "content": self.sys_prompt}
-		]
+		prompts = [{"role": "system", "content": self.sys_prompt}]
 
-		for h in self.__history:
+		for h in self.history:
 			prompts.append(h)
 
 		try:
 			r = await asyncio.wait_for(
 				openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=prompts, user=user),
-				timeout=120
+				timeout=config.api_timeout
 			)
 			reply = r["choices"][0]["message"]["content"]
 			reply = opencc.OpenCC("s2twp").convert(reply)
@@ -80,16 +76,10 @@ class GPT:
 			return "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```"
 
 		log(f"chat generated: {reply}")
-		self.__history.append({"role": "assistant", "content": reply})
+		self.history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()
 		return reply
-
-	def forget(self):
-		self.__history.clear()
-
-	def reset(self):
-		self.sys_prompt = "你是個幽默風趣的人，喜歡與人聊天。"
 
 
 openai.api_key = os.environ.get("openai_api_key")
