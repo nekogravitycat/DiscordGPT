@@ -1,13 +1,10 @@
 poetry.lock
 pyproject.toml
 .breakpoints
-.replit
 log/
-log.txt
-sys_msg.txt
-myenv.txt
 .idea/
 .env
+config.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
