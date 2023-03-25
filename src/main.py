@@ -71,19 +71,20 @@ async def brain_wash(ctx, prompt):
 		return
 
 	chat = chats.get(ctx.channel.id)
-	chat.gpt.init_prompt = prompt
-	await ctx.respond(f"```設定更新：{chat.gpt.init_prompt}```")
+	chat.gpt.sys_prompt = prompt
+	await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
 
 
-@bot.slash_command(description="顯示 GPT 機器人的詳細資訊", guild_ids=config.available_servers)
+@bot.slash_command(description="顯示目前的 GPT 機器人設定", guild_ids=config.available_servers)
 async def status(ctx):
-	await ctx.respond("")
+	chat = chats.get(ctx.channel.id)
+	await ctx.respond(f"```目前設定：{chat.gpt.sys_prompt}```")
 
 
 @bot.slash_command(description="恢復 GPT 的預設性格", guild_ids=config.available_servers)
 async def reset(ctx):
 	chat = chats.get(ctx.channel.id)
-	chat.gpt.init_prompt = config.default_sys_prompt
+	chat.gpt.sys_prompt = config.default_sys_prompt
 	await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
 
 
