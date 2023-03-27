@@ -2,6 +2,7 @@ poetry.lock
 pyproject.toml
 .breakpoints
 log/
+data/
 .idea/
 .env
 config.json

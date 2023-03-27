@@ -50,14 +50,16 @@ class GPT:
 		while len(self.history) > config.max_history_len or count_token(self.history) > config.max_history_token:
 			self.history.pop(0)
 
-		prompts = [{"role": "system", "content": self.sys_prompt}]
-
-		for h in self.history:
-			prompts.append(h)
+		sys = [{"role": "system", "content": self.sys_prompt}]
 
 		try:
 			r = await asyncio.wait_for(
-				openai.ChatCompletion.acreate(model="gpt-3.5-turbo", messages=prompts, user=user),
+				openai.ChatCompletion.acreate(
+					model="gpt-3.5-turbo",
+					messages=sys+self.history,
+					max_tokens=config.max_generated_token,
+					user=user
+				),
 				timeout=config.api_timeout
 			)
 			reply = r["choices"][0]["message"]["content"]

@@ -7,6 +7,7 @@ from src.log import log
 available_servers: list[str] = []
 max_prompt_token: int = 650
 max_sys_prompt_token: int = 500
+max_generated_token: int = 1500
 max_history_len: int = 12
 max_history_age: int = 15  # in minutes
 max_history_token: int = 1500
@@ -27,6 +28,8 @@ def load_config():
 			max_prompt_token = config.get("max_prompt_token")
 			global max_sys_prompt_token
 			max_sys_prompt_token = config.get("max_sys_prompt_token")
+			global max_generated_token
+			max_generated_token = config.get("max_generated_token")
 			global max_history_len
 			max_history_len = config.get("max_history_len")
 			global max_history_age
