@@ -3,5 +3,6 @@ COPY . /app
 WORKDIR /app
 RUN mkdir log
 RUN mkdir data
+RUN mkdir data/users
 RUN pip install -r requirements.txt
 CMD ["python", "-m", "src.main"]
