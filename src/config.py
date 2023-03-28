@@ -12,6 +12,7 @@ max_history_len: int = 12
 max_history_age: int = 15  # in minutes
 max_history_token: int = 1500
 api_timeout: int = 60  # in seconds
+free_credits: float = 0.3  # in USD
 default_sys_prompt: str = "You have a great sense of humor and are an independent thinker who likes to chat."
 
 
@@ -38,6 +39,8 @@ def load_config():
 			max_history_token = config.get("max_history_token")
 			global api_timeout
 			api_timeout = config.get("api_timeout")
+			global free_credits
+			free_credits = config.get("free_credits")
 			global default_sys_prompt
 			default_sys_prompt = config.get("default_sys_prompt")
 

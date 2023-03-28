@@ -32,14 +32,14 @@ class GPT:
 		self.history: list[dict] = []
 		self.__latest_chat_time = datetime.datetime.now()
 
-	async def chat(self, user: str, content: str) -> str:
-		log(f"prompt received from {user}: {content}")
+	async def chat(self, user: str, content: str, model: str) -> dict:
+		log(f"{model} prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
 		# check prompt length
 		if count_token([new_prompt]) > config.max_prompt_token:
 			log("prompt too long")
-			return "打這麼多誰他媽看得完？"
+			return {"reply": "打這麼多誰他媽看得完？", "usage": 0}
 
 		# forget history that's older than max_history_age
 		time_diff = datetime.datetime.now() - self.__latest_chat_time
@@ -55,7 +55,7 @@ class GPT:
 		try:
 			r = await asyncio.wait_for(
 				openai.ChatCompletion.acreate(
-					model="gpt-3.5-turbo",
+					model=model,
 					messages=sys+self.history,
 					max_tokens=config.max_generated_token,
 					user=user
@@ -65,23 +65,29 @@ class GPT:
 			reply = r["choices"][0]["message"]["content"]
 			reply = opencc.OpenCC("s2twp").convert(reply)
 
+			usage: float = 0
+			if model == "gpt-3.5-turbo":
+				usage = r["usage"]["total_tokens"] / 1000 * 0.002
+			elif model == "gpt-4":
+				usage = r["usage"]["prompt_tokens"] / 1000 * 0.03 + r["usage"]["completion_tokens"] / 1000 * 0.06
+
 		except asyncio.TimeoutError as e:
 			log(f"asyncio.TimeoutError:\n{repr(e)}")
-			return "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```"
+			return {"reply": "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```", "usage": 0}
 
 		except openai.error.Timeout as e:
 			log(f"openai.error.Timeout\n{repr(e)}")
-			return "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```"
+			return {"reply": "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```", "usage": 0}
 
 		except Exception as e:
 			log(repr(e))
-			return "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```"
+			return {"reply": "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```", "usage": 0}
 
 		log(f"chat generated: {reply}")
 		self.history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()
-		return reply
+		return {"reply": reply, "usage": usage}
 
 
 openai.api_key = os.environ.get("openai_api_key")
