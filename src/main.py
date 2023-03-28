@@ -51,9 +51,10 @@ class Chat:
 
 
 chats: dict[int, Chat] = {}
+all_servers: list = config.available_servers + config.admin_servers
 
 
-@bot.slash_command(description="開始與 GPT 聊天（僅限使用指令的頻道）", guild_ids=config.available_servers)
+@bot.slash_command(description="開始與 GPT 聊天（僅限使用指令的頻道）", guild_ids=all_servers)
 async def start_chat(ctx: discord.ApplicationContext):
 	if ctx.channel_id not in chats:
 		chats[ctx.channel_id] = Chat()
@@ -62,7 +63,7 @@ async def start_chat(ctx: discord.ApplicationContext):
 		await ctx.respond("我已經在聊天室裡了，你一點都沒有在注意我 ( ˘･з･)")
 
 
-@bot.slash_command(description="結束與 GPT 的聊天", guild_ids=config.available_servers)
+@bot.slash_command(description="結束與 GPT 的聊天", guild_ids=all_servers)
 async def stop_chat(ctx: discord.ApplicationContext):
 	if not chats.pop(ctx.channel_id, None):
 		await ctx.respond("我本來就沒在這聊天啊 ( •́ _ •̀)？")
@@ -70,7 +71,7 @@ async def stop_chat(ctx: discord.ApplicationContext):
 		await ctx.respond("掰啦⋯⋯不要太想我 (☍﹏⁰)")
 
 
-@bot.slash_command(description="讓 GPT 馬上遺忘先前的對話", guild_ids=config.available_servers)
+@bot.slash_command(description="讓 GPT 馬上遺忘先前的對話", guild_ids=all_servers)
 async def forget(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
@@ -81,7 +82,7 @@ async def forget(ctx: discord.ApplicationContext):
 	await ctx.respond("蝦？剛發生了啥？ Σ( ° △ °)")
 
 
-@bot.slash_command(description="自訂 GPT 的性格（類似洗腦）", guild_ids=config.available_servers)
+@bot.slash_command(description="自訂 GPT 的性格（類似洗腦）", guild_ids=all_servers)
 @discord.option("prompt", description="洗腦的內容", required=True)
 async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
 	if ctx.channel.id not in chats:
@@ -103,7 +104,7 @@ async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
 
 
-@bot.slash_command(description="顯示目前的 GPT 機器人設定", guild_ids=config.available_servers)
+@bot.slash_command(description="顯示目前的 GPT 機器人設定", guild_ids=all_servers)
 async def status(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
@@ -113,7 +114,7 @@ async def status(ctx: discord.ApplicationContext):
 	await ctx.respond(f"```目前設定：{chat.gpt.sys_prompt}```")
 
 
-@bot.slash_command(description="恢復 GPT 的預設性格", guild_ids=config.available_servers)
+@bot.slash_command(description="恢復 GPT 的預設性格", guild_ids=all_servers)
 async def reset(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
@@ -127,7 +128,7 @@ async def reset(ctx: discord.ApplicationContext):
 supported_models = ["gpt-3.5-turbo", "gpt-4"]
 
 
-@bot.slash_command(description="選擇語言模型", guild_ids=config.available_servers)
+@bot.slash_command(description="選擇語言模型", guild_ids=all_servers)
 @discord.option("model", choices=supported_models)
 async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
@@ -140,7 +141,7 @@ async def set_model(ctx: discord.ApplicationContext, model: str):
 		await ctx.respond(f"```成功切換至模型：{user.model}```")
 
 
-@bot.slash_command(description="查看目前的使用額度", guild_ids=config.available_servers)
+@bot.slash_command(description="查看目前的使用額度", guild_ids=all_servers)
 async def quota(ctx: discord.ApplicationContext):
 	if not record.user_exists(ctx.user.id):
 		await ctx.respond(f"```您目前的使用額度：${config.free_credits} USD```")
@@ -148,6 +149,29 @@ async def quota(ctx: discord.ApplicationContext):
 
 	user = record.User(ctx.user.id)
 	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```")
+
+
+@bot.slash_command(description="Add quota to a user", guild_ids=config.admin_servers)
+@discord.option("user_id", description="user id", required=True)
+@discord.option("amount", description="amount", required=True)
+@discord.option("create_new_user", choices=[True, False], required=False, default=False)
+async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float, create_new_user: bool):
+	if int(ctx.user.id) != config.admin_id:
+		await ctx.respond("```you're not the admin```")
+		return
+
+	log(f"add quota {amount} usd to {user_id}")
+	if not create_new_user and not record.user_exists(int(user_id)):
+		log("user not exists")
+		await ctx.respond(f"```user {user_id} does not exist in database```")
+		return
+
+	user = record.User(int(user_id))
+	old = user.credits
+	user.credits += amount
+	user.save_data()
+	log(f"user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD")
+	await ctx.respond(f"```user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD```")
 
 
 @bot.event

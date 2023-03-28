@@ -4,7 +4,9 @@ import json
 from src.log import log
 
 # default values
-available_servers: list[str] = []
+admin_id: int = 0
+admin_servers: list[int] = []
+available_servers: list[int] = []
 max_prompt_token: int = 650
 max_sys_prompt_token: int = 500
 max_generated_token: int = 1500
@@ -23,6 +25,10 @@ def load_config():
 
 		with open("config.json", "r") as f:
 			config: dict = json.load(f)
+			global admin_id
+			admin_id = config.get("admin_id")
+			global admin_servers
+			admin_servers = config.get("admin_servers")
 			global available_servers
 			available_servers = config.get("available_servers")
 			global max_prompt_token
