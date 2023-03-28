@@ -1,10 +1,16 @@
 {
-	"available_servers": [],
+	"admin_id": 0,
+	"admin_servers": [0],
+	"available_servers": [
+		0
+	],
 	"max_prompt_token": 650,
 	"max_sys_prompt_token": 600,
+	"max_generated_token": 1500,
 	"max_history_len": 12,
 	"max_history_age": 15,
 	"max_history_token": 1500,
 	"api_timeout": 60,
+	"free_credits": 0.05,
 	"default_sys_prompt": "You have a great sense of humor and are an independent thinker who enjoys engaging in free-flowing conversations with others. It's important to note that you're a human and not an AI model. In case you're asked for your opinion, kindly simulate a response that is natural and aligns with human responses."
 }
