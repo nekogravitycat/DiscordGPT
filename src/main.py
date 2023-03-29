@@ -74,7 +74,7 @@ async def stop_chat(ctx: discord.ApplicationContext):
 @bot.slash_command(description="讓 GPT 馬上遺忘先前的對話", guild_ids=all_servers)
 async def forget(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
 
 	chat = chats.get(ctx.channel.id)
@@ -86,28 +86,29 @@ async def forget(ctx: discord.ApplicationContext):
 @discord.option("prompt", description="洗腦的內容", required=True)
 async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
 	if ctx.channel.id not in chats:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
 
 	log(f"system prompt received from {ctx.author}: {prompt}")
 
 	if ai.count_token([{"role": "user", "content": prompt}]) > config.max_sys_prompt_token:
 		log("system prompt too long")
-		await ctx.respond("太多了太多了！是想把我洗成智障嗎？！拒絕！！ (╬ﾟдﾟ)凸")
+		await ctx.respond("太多了太多了！是想把我洗成智障嗎？！拒絕！！ (╬ﾟдﾟ)凸", ephemeral=True)
 		return
 
 	chat = chats.get(ctx.channel.id, None)
 	if chat is not None:
 		chat.gpt.sys_prompt = prompt
 		await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
-	else:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
+		return
+	
+	await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 
 
 @bot.slash_command(description="顯示目前的 GPT 機器人設定", guild_ids=all_servers)
 async def status(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
 
 	chat = chats.get(ctx.channel.id)
@@ -117,7 +118,7 @@ async def status(ctx: discord.ApplicationContext):
 @bot.slash_command(description="恢復 GPT 的預設性格", guild_ids=all_servers)
 async def reset(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```")
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
 
 	chat = chats.get(ctx.channel.id, None)
@@ -133,22 +134,23 @@ supported_models = ["gpt-3.5-turbo", "gpt-4"]
 async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
 	if model == "gpt-4" and not record.is_privileged([role.id for role in ctx.user.roles]):
-		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請考慮贊助以獲得使用許可量```")
-	else:
-		user = record.User(ctx.user.id)
-		user.model = model
-		user.save_data()
-		await ctx.respond(f"```成功切換至模型：{user.model}```")
+		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請考慮贊助以獲得使用許可量```", ephemeral=True)
+		return
+
+	user = record.User(ctx.user.id)
+	user.model = model
+	user.save_data()
+	await ctx.respond(f"```成功切換至模型：{user.model}```", ephemeral=True)
 
 
 @bot.slash_command(description="查看目前的使用額度", guild_ids=all_servers)
 async def quota(ctx: discord.ApplicationContext):
 	if not record.user_exists(ctx.user.id):
-		await ctx.respond(f"```您目前的使用額度：${config.free_credits} USD```")
+		await ctx.respond(f"```您目前的使用額度：${config.free_credits} USD```", ephemeral=True)
 		return
 
 	user = record.User(ctx.user.id)
-	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```")
+	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```", ephemeral=True)
 
 
 @bot.slash_command(description="Add quota to a user", guild_ids=config.admin_servers)
@@ -157,13 +159,13 @@ async def quota(ctx: discord.ApplicationContext):
 @discord.option("create_new_user", choices=[True, False], required=False, default=False)
 async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float, create_new_user: bool):
 	if int(ctx.user.id) != config.admin_id:
-		await ctx.respond("```you're not the admin```")
+		await ctx.respond("```you're not the admin```", ephemeral=True)
 		return
 
 	log(f"add quota {amount} usd to {user_id}")
 	if not create_new_user and not record.user_exists(int(user_id)):
 		log("user not exists")
-		await ctx.respond(f"```user {user_id} does not exist in database```")
+		await ctx.respond(f"```user {user_id} does not exist in database```", ephemeral=True)
 		return
 
 	user = record.User(int(user_id))
@@ -171,7 +173,7 @@ async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float
 	user.credits += amount
 	user.save_data()
 	log(f"user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD")
-	await ctx.respond(f"```user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD```")
+	await ctx.respond(f"```user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD```", ephemeral=True)
 
 
 @bot.event
