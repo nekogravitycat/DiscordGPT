@@ -207,7 +207,7 @@ async def on_message(message: discord.Message):
 	if message.content.startswith("#") or message.content.startswith("＃"):
 		return
 
-	if channels.is_on_channel(message.channel.id) and message.channel.id not in chats:
+	if message.channel.id not in chats and channels.is_on_channel(message.channel.id):
 		log(f"restore active channel: {message.channel.id}")
 		chats[message.channel.id] = Chat()
 		chats.get(message.channel.id).gpt.sys_prompt = channels.channels.get(str(message.channel.id))
