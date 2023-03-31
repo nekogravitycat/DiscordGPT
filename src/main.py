@@ -174,7 +174,7 @@ async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float
 		await ctx.respond(f"```user {user_id} does not exist in database```", ephemeral=True)
 		return
 
-	user_name: str = ""
+	user_name: str
 
 	try:
 		user_obj = await bot.fetch_user(int(user_id))
