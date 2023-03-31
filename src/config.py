@@ -17,16 +17,16 @@ api_timeout: int = 60  # in seconds
 free_credits: float = 0.05  # in USD
 default_sys_prompt: str = "You have a great sense of humor and are an independent thinker who likes to chat."
 
-dconfig: str = "default_config/dconfig.json"
-config: str = "config/config.json"
+dconfig_file: str = "default_config/dconfig.json"
+config_file: str = "config/config.json"
 
 
 def load_config():
 	try:
-		if not os.path.exists(config):
-			shutil.copy(dconfig, config)
+		if not os.path.exists(config_file):
+			shutil.copy(dconfig_file, config_file)
 
-		with open(config, "r") as f:
+		with open(config_file, "r") as f:
 			config: dict = json.load(f)
 			global admin_id
 			admin_id = config.get("admin_id")
@@ -64,10 +64,10 @@ def load_config():
 
 def save_config():
 	try:
-		if not os.path.exists(config):
-			shutil.copy(dconfig, config)
+		if not os.path.exists(config_file):
+			shutil.copy(dconfig_file, config_file)
 
-		config: dict = {
+		config_info: dict = {
 			"available_servers": available_servers,
 			"max_prompt_token": max_prompt_token,
 			"max_sys_prompt_token": max_sys_prompt_token,
@@ -78,8 +78,8 @@ def save_config():
 			"default_sys_prompt": default_sys_prompt
 		}
 
-		with open(config, "w") as f:
-			json.dump(config, f, indent="\t")
+		with open(config_file, "w") as f:
+			json.dump(config_info, f, indent="\t")
 
 	except IOError:
 		log("IO error when saving config.json")
