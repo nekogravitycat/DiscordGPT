@@ -4,7 +4,7 @@ from src.log import log
 
 channels_file: str = "data/channels.json"
 
-channels: dict[int, str] = {}
+channels: dict[str, str] = {}
 
 
 def load_data():
@@ -31,16 +31,16 @@ def save_data():
 
 def add_channel(channel_id: int, sys_message: str):
 	load_data()
-	channels[channel_id] = sys_message
+	channels[str(channel_id)] = sys_message
 	save_data()
 
 
 def del_channel(channel_id: int):
 	load_data()
-	channels.pop(channel_id)
+	channels.pop(str(channel_id))
 	save_data()
 
 
 def is_on_channel(channel_id: int):
 	load_data()
-	return channel_id in channels
+	return str(channel_id) in channels
