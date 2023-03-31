@@ -17,13 +17,16 @@ api_timeout: int = 60  # in seconds
 free_credits: float = 0.05  # in USD
 default_sys_prompt: str = "You have a great sense of humor and are an independent thinker who likes to chat."
 
+dconfig: str = "default_config/dconfig.json"
+config: str = "config/config.json"
+
 
 def load_config():
 	try:
-		if not os.path.exists("config.json"):
-			shutil.copy("config_default.json", "config.json")
+		if not os.path.exists(config):
+			shutil.copy(dconfig, config)
 
-		with open("config.json", "r") as f:
+		with open(config, "r") as f:
 			config: dict = json.load(f)
 			global admin_id
 			admin_id = config.get("admin_id")
@@ -61,8 +64,8 @@ def load_config():
 
 def save_config():
 	try:
-		if not os.path.exists("config.json"):
-			shutil.copy("config_default.json", "config.json")
+		if not os.path.exists(config):
+			shutil.copy(dconfig, config)
 
 		config: dict = {
 			"available_servers": available_servers,
@@ -75,7 +78,7 @@ def save_config():
 			"default_sys_prompt": default_sys_prompt
 		}
 
-		with open("config.json", "w") as f:
+		with open(config, "w") as f:
 			json.dump(config, f, indent="\t")
 
 	except IOError:

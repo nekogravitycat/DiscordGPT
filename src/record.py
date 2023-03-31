@@ -1,5 +1,6 @@
 import os
 import json
+import shutil
 from src import config
 from src.log import log
 
@@ -42,9 +43,15 @@ def user_exists(user_id: int):
 	return os.path.exists(f"data/users/{str(user_id)}.json")
 
 
+dprivileged: str = "default_config/dprivileged.json"
+privileged: str = "config/privileged.json"
+
+
 def is_privileged(roles: list):
 	try:
-		with open("data/privileged_roles.json", "r") as f:
+		if not os.path.exists(privileged):
+			shutil.copy(dprivileged, privileged)
+		with open(privileged, "r") as f:
 			return set(roles).intersection(json.load(f)["roles"])  # true if any role the user has matches any privileged role
 	except Exception as e:
 		log("record.is_privileged() error")

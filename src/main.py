@@ -136,6 +136,7 @@ supported_models = ["gpt-3.5-turbo", "gpt-4"]
 async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
 	if model == "gpt-4" and not record.is_privileged([role.id for role in ctx.user.roles]):
+		log("no privilege")
 		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請考慮贊助以獲得使用許可量```", ephemeral=True)
 		return
 
