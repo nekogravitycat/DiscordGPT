@@ -29,29 +29,29 @@ def load_config():
 		with open(config_file, "r") as f:
 			config: dict = json.load(f)
 			global admin_id
-			admin_id = config.get("admin_id")
+			admin_id = config.get("admin_id", admin_id)
 			global admin_servers
-			admin_servers = config.get("admin_servers")
+			admin_servers = config.get("admin_servers", admin_servers)
 			global available_servers
-			available_servers = config.get("available_servers")
+			available_servers = config.get("available_servers", available_servers)
 			global max_prompt_token
-			max_prompt_token = config.get("max_prompt_token")
+			max_prompt_token = config.get("max_prompt_token", max_prompt_token)
 			global max_sys_prompt_token
-			max_sys_prompt_token = config.get("max_sys_prompt_token")
+			max_sys_prompt_token = config.get("max_sys_prompt_token", max_sys_prompt_token)
 			global max_generated_token
-			max_generated_token = config.get("max_generated_token")
+			max_generated_token = config.get("max_generated_token", max_generated_token)
 			global max_history_len
-			max_history_len = config.get("max_history_len")
+			max_history_len = config.get("max_history_len", max_history_len)
 			global max_history_age
-			max_history_age = config.get("max_history_age")
+			max_history_age = config.get("max_history_age", max_history_age)
 			global max_history_token
-			max_history_token = config.get("max_history_token")
+			max_history_token = config.get("max_history_token", max_history_token)
 			global api_timeout
-			api_timeout = config.get("api_timeout")
+			api_timeout = config.get("api_timeout", api_timeout)
 			global free_credits
-			free_credits = config.get("free_credits")
+			free_credits = config.get("free_credits", free_credits)
 			global default_sys_prompt
-			default_sys_prompt = config.get("default_sys_prompt")
+			default_sys_prompt = config.get("default_sys_prompt", default_sys_prompt)
 
 	except IOError:
 		log("IO error when loading config.json")

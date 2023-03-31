@@ -33,12 +33,10 @@ class GPT:
 		self.__latest_chat_time = datetime.datetime.now()
 
 	async def chat(self, user: str, content: str, model: str) -> dict:
-		log(f"{model} prompt received from {user}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
 		# check prompt length
 		if count_token([new_prompt]) > config.max_prompt_token:
-			log("prompt too long")
 			return {"reply": "打這麼多誰他媽看得完？", "usage": 0}
 
 		# forget history that's older than max_history_age
@@ -83,7 +81,6 @@ class GPT:
 			log(repr(e))
 			return {"reply": "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```", "usage": 0}
 
-		log(f"chat generated: {reply}")
 		self.history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()

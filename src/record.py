@@ -20,8 +20,8 @@ class User:
 
 			with open(f"data/users/{str(self.user_id)}.json", "r") as f:
 				info: dict = json.load(f)
-				self.model = info.get("model")
-				self.credits = info.get("credits")
+				self.model = info.get("model", self.model)
+				self.credits = info.get("credits", self.credits)
 		except Exception as e:
 			log("record.User.load_data() error")
 			log(repr(e))

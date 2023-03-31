@@ -4,6 +4,7 @@ from src.log import log
 from src import ai
 from src import config
 from src import record
+from src import channels
 
 config.load_config()
 bot: discord.Bot = discord.Bot(intents=discord.Intents.all())
@@ -59,8 +60,9 @@ async def start_chat(ctx: discord.ApplicationContext):
 	if ctx.channel_id in chats:
 		await ctx.respond("我已經在聊天室裡了，你一點都沒有在注意我 ( ˘･з･)")
 		return
-	
+
 	chats[ctx.channel_id] = Chat()
+	channels.add_channel(ctx.channel_id, chats.get(ctx.channel_id).gpt.sys_prompt)
 	await ctx.respond("好耶，來一起聊天！ (ﾉ>ω<)ﾉ")
 
 
@@ -69,7 +71,8 @@ async def stop_chat(ctx: discord.ApplicationContext):
 	if not chats.pop(ctx.channel_id, None):
 		await ctx.respond("我本來就沒在這聊天啊 ( •́ _ •̀)？")
 		return
-	
+
+	channels.del_channel(ctx.channel_id)
 	await ctx.respond("掰啦⋯⋯不要太想我 (☍﹏⁰)")
 
 
@@ -91,8 +94,6 @@ async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
 
-	log(f"system prompt received from {ctx.author}: {prompt}")
-
 	if ai.count_token([{"role": "user", "content": prompt}]) > config.max_sys_prompt_token:
 		log("system prompt too long")
 		await ctx.respond("太多了太多了！是想把我洗成智障嗎？！拒絕！！ (╬ﾟдﾟ)凸", ephemeral=True)
@@ -104,6 +105,7 @@ async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
 		return
 	
 	chat.gpt.sys_prompt = prompt
+	channels.add_channel(ctx.channel_id, chat.gpt.sys_prompt)
 	await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
 
 
@@ -125,6 +127,7 @@ async def reset(ctx: discord.ApplicationContext):
 
 	chat = chats.get(ctx.channel.id, None)
 	chat.gpt.sys_prompt = config.default_sys_prompt
+	channels.add_channel(ctx.channel_id, chat.gpt.sys_prompt)
 	await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
 
 
@@ -171,12 +174,29 @@ async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float
 		await ctx.respond(f"```user {user_id} does not exist in database```", ephemeral=True)
 		return
 
+	user_name: str = ""
+
+	try:
+		user_obj = await bot.fetch_user(int(user_id))
+		user_name = user_obj.name
+
+	except discord.NotFound:
+		log(f"user with id '{user_id}' cannot be found")
+		user_name = "NOT FOUND"
+
+	except Exception as e:
+		log(f"main.add_quota() error: cannot fetch user '{user_id}'")
+		log(repr(e))
+		user_name = "ERROR"
+
 	user = record.User(int(user_id))
-	old = user.credits
+	old_credits = user.credits
 	user.credits += amount
 	user.save_data()
-	log(f"user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD")
-	await ctx.respond(f"```user quota: ${round(old, 5)} -> ${round(user.credits, 5)} USD```", ephemeral=True)
+
+	result_message: str = f"user '{user_name}' quota: ${round(old_credits, 5)} -> ${round(user.credits, 5)} USD"
+	log(result_message)
+	await ctx.respond(f"```{result_message}```", ephemeral=True)
 
 
 @bot.event
@@ -186,6 +206,11 @@ async def on_message(message: discord.Message):
 
 	if message.content.startswith("#") or message.content.startswith("＃"):
 		return
+
+	channels.load_data()
+	if channels.is_on_channel(message.channel.id) and message.channel.id not in chats:
+		chats[message.channel.id] = Chat()
+		chats.get(message.channel.id).gpt.sys_prompt = channels.channels.get(message.channel.id)
 
 	if message.channel.id in chats:
 		chat = chats.get(message.channel.id)
