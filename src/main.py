@@ -194,7 +194,7 @@ async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float
 	user.credits += amount
 	user.save_data()
 
-	result_message: str = f"user '{user_name}' quota: ${round(old_credits, 5)} -> ${round(user.credits, 5)} USD"
+	result_message: str = f"quota for '{user_name}': ${round(old_credits, 5)} -> ${round(user.credits, 5)} (+${amount})"
 	log(result_message)
 	await ctx.respond(f"```{result_message}```", ephemeral=True)
 
