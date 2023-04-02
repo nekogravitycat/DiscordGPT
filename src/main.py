@@ -56,7 +56,7 @@ chats: dict[int, Chat] = {}
 all_servers: list = config.available_servers + config.admin_servers
 
 
-@bot.slash_command(description="開始與 GPT 聊天（僅限使用指令的頻道）", guild_ids=all_servers)
+@bot.slash_command(name="start chat", description="開始與 GPT 聊天（僅限使用指令的頻道）", guild_ids=all_servers)
 async def start_chat(ctx: discord.ApplicationContext):
 	if ctx.channel_id in chats:
 		await ctx.respond("我已經在聊天室裡了，你一點都沒有在注意我 ( ˘･з･)")
@@ -67,7 +67,7 @@ async def start_chat(ctx: discord.ApplicationContext):
 	await ctx.respond("好耶，來一起聊天！ (ﾉ>ω<)ﾉ")
 
 
-@bot.slash_command(description="結束與 GPT 的聊天", guild_ids=all_servers)
+@bot.slash_command(name="stop chat", description="結束與 GPT 的聊天", guild_ids=all_servers)
 async def stop_chat(ctx: discord.ApplicationContext):
 	if not chats.pop(ctx.channel_id, None):
 		await ctx.respond("我本來就沒在這聊天啊 ( •́ _ •̀)？")
@@ -90,7 +90,7 @@ async def forget(ctx: discord.ApplicationContext):
 
 @bot.slash_command(description="自訂 GPT 的性格（類似洗腦）", guild_ids=all_servers)
 @discord.option("prompt", description="洗腦的內容", required=True)
-async def brain_wash(ctx: discord.ApplicationContext, prompt: str):
+async def brainwash(ctx: discord.ApplicationContext, prompt: str):
 	if ctx.channel.id not in chats:
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
@@ -135,7 +135,7 @@ async def reset(ctx: discord.ApplicationContext):
 supported_models = ["gpt-3.5-turbo", "gpt-4"]
 
 
-@bot.slash_command(description="選擇語言模型", guild_ids=all_servers)
+@bot.slash_command(name="set model", description="選擇語言模型", guild_ids=all_servers)
 @discord.option("model", choices=supported_models)
 async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
