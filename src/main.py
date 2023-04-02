@@ -204,6 +204,9 @@ async def on_message(message: discord.Message):
 	if message.author.id == bot.user.id:
 		return
 
+	if message.author.bot:
+		return
+
 	if message.content.startswith("#") or message.content.startswith("＃"):
 		return
 
