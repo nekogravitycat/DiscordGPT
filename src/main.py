@@ -160,7 +160,7 @@ async def quota(ctx: discord.ApplicationContext):
 	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```", ephemeral=True)
 
 
-@bot.slash_command(description="指令介紹", guild_ids=all_servers)
+@bot.slash_command(name="help", description="指令介紹", guild_ids=all_servers)
 async def help_info(ctx: discord.ApplicationContext):
 	await ctx.respond(help_message)
 
