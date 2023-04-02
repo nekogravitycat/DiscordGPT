@@ -41,7 +41,7 @@ class GPT:
 
 		# forget history that's older than max_history_age
 		time_diff = datetime.datetime.now() - self.__latest_chat_time
-		if time_diff.total_seconds() / 60 > config.max_history_age:
+		if time_diff.total_seconds() > config.max_history_age * 60:
 			self.history.clear()
 
 		self.history.append({"role": "user", "content": content})
@@ -69,6 +69,10 @@ class GPT:
 			elif model == "gpt-4":
 				usage = r["usage"]["prompt_tokens"] / 1000 * 0.03 + r["usage"]["completion_tokens"] / 1000 * 0.06
 
+		except openai.error.RateLimitError as e:
+			log(f"open.ai.error.RateLimitError:\n{repr(e)}")
+			return {"reply": "```目前使用量過大，請等一段時間後再試一次```", "usage": 0}
+
 		except asyncio.TimeoutError as e:
 			log(f"asyncio.TimeoutError:\n{repr(e)}")
 			return {"reply": "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```", "usage": 0}
@@ -84,7 +88,7 @@ class GPT:
 		self.history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()
-		return {"reply": reply, "usage": usage}
+		return {"reply": reply, "usage": usage*(1.0+config.fee_rate)}
 
 
 openai.api_key = os.environ.get("openai_api_key")

@@ -15,6 +15,7 @@ max_history_age: int = 15  # in minutes
 max_history_token: int = 1500
 api_timeout: int = 60  # in seconds
 free_credits: float = 0.05  # in USD
+fee_rate: float = 0.1  # 0.1 for additional 10%
 default_sys_prompt: str = "You have a great sense of humor and are an independent thinker who likes to chat."
 
 dconfig_file: str = "default_config/dconfig.json"
@@ -50,6 +51,8 @@ def load_config():
 			api_timeout = config.get("api_timeout", api_timeout)
 			global free_credits
 			free_credits = config.get("free_credits", free_credits)
+			global fee_rate
+			fee_rate = config.get("fee_rate", fee_rate)
 			global default_sys_prompt
 			default_sys_prompt = config.get("default_sys_prompt", default_sys_prompt)
 
@@ -59,32 +62,4 @@ def load_config():
 
 	except Exception as e:
 		log("unknown error when loading config.json")
-		log(repr(e))
-
-
-def save_config():
-	try:
-		if not os.path.exists(config_file):
-			shutil.copy(dconfig_file, config_file)
-
-		config_info: dict = {
-			"available_servers": available_servers,
-			"max_prompt_token": max_prompt_token,
-			"max_sys_prompt_token": max_sys_prompt_token,
-			"max_history_len": max_history_len,
-			"max_history_age": max_history_age,
-			"max_history_token": max_history_token,
-			"api_timeout": api_timeout,
-			"default_sys_prompt": default_sys_prompt
-		}
-
-		with open(config_file, "w") as f:
-			json.dump(config_info, f, indent="\t")
-
-	except IOError:
-		log("IO error when saving config.json")
-		log("not able to save config file")
-
-	except Exception as e:
-		log("unknown error when saving config.json")
 		log(repr(e))

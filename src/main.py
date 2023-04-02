@@ -51,6 +51,7 @@ class Chat:
 			await self.__reply_next()
 
 
+help_message: str = ""
 chats: dict[int, Chat] = {}
 all_servers: list = config.available_servers + config.admin_servers
 
@@ -159,6 +160,11 @@ async def quota(ctx: discord.ApplicationContext):
 	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```", ephemeral=True)
 
 
+@bot.slash_command(description="指令介紹", guild_ids=all_servers)
+async def help_info(ctx: discord.ApplicationContext):
+	await ctx.respond(help_message)
+
+
 @bot.slash_command(description="Add quota to a user", guild_ids=config.admin_servers)
 @discord.option("user_id", description="user id", required=True)
 @discord.option("amount", description="amount", required=True)
@@ -220,5 +226,16 @@ async def on_message(message: discord.Message):
 		await chat.add_message(message)
 
 
+def load_help_message():
+	try:
+		with open("asset/help.md", "r", encoding="utf-8") as f:
+			global help_message
+			help_message = f.read()
+	except Exception as e:
+		log(f"error while reading help message:\n{repr(e)}")
+		help_message = "```ERROR WHILE READING HELP MESSAGE```"
+
+
 log("bot running!")
+load_help_message()
 bot.run(os.environ.get("discord_bot_token"))
