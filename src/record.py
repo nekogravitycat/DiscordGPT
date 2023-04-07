@@ -10,6 +10,7 @@ class User:
 		self.user_id: int = user_id
 		self.model: str = "gpt-3.5-turbo"
 		self.credits: float = 0
+		self.privileged: bool = False
 		self.load_data()
 
 	def load_data(self):
@@ -22,6 +23,7 @@ class User:
 				info: dict = json.load(f)
 				self.model = info.get("model", self.model)
 				self.credits = info.get("credits", self.credits)
+				self.privileged = info.get("privileged", self.privileged)
 		except Exception as e:
 			log("record.User.load_data() error")
 			log(repr(e))
@@ -31,7 +33,8 @@ class User:
 			with open(f"data/users/{str(self.user_id)}.json", "w") as f:
 				info: dict = {
 					"model": self.model,
-					"credits": self.credits
+					"credits": self.credits,
+					"privileged": self.privileged
 				}
 				json.dump(info, f, indent="\t")
 		except Exception as e:

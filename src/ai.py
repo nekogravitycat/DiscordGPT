@@ -51,6 +51,10 @@ class GPT:
 		sys = [{"role": "system", "content": self.sys_prompt}]
 
 		try:
+			timeout: int = config.api_timeout
+			if model == "gpt-4":
+				timeout *= 2
+
 			r = await asyncio.wait_for(
 				openai.ChatCompletion.acreate(
 					model=model,
@@ -58,7 +62,7 @@ class GPT:
 					max_tokens=config.max_generated_token,
 					user=user
 				),
-				timeout=config.api_timeout
+				timeout=timeout
 			)
 			reply = r["choices"][0]["message"]["content"]
 			reply = opencc.OpenCC("s2twp").convert(reply)

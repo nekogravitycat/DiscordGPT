@@ -29,7 +29,7 @@ class Chat:
 			try:
 				async with message.channel.typing():
 					if user.model == "gpt-4" and not record.is_privileged([role.id for role in message.author.roles]):
-						log(f"downgraded model to gpt-3.5-turbo for user {message.author.name} because of missing privilege")
+						log(f"downgraded model to gpt-3.5-turbo for '{message.author.name}' because of missing privilege")
 						user.model = "gpt-3.5-turbo"
 
 					if user.credits <= 0 and not user.credits == -1:
