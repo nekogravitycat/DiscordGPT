@@ -72,18 +72,22 @@ class GPT:
 
 		except openai.error.RateLimitError as e:
 			log(f"open.ai.error.RateLimitError:\n{repr(e)}")
+			self.history.pop()
 			return {"reply": "```目前使用量過大，請等一段時間後再試一次```", "usage": 0}
 
 		except asyncio.TimeoutError as e:
 			log(f"asyncio.TimeoutError:\n{repr(e)}")
+			self.history.pop()
 			return {"reply": "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```", "usage": 0}
 
 		except openai.error.Timeout as e:
 			log(f"openai.error.Timeout\n{repr(e)}")
+			self.history.pop()
 			return {"reply": "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```", "usage": 0}
 
 		except Exception as e:
 			log(repr(e))
+			self.history.pop()
 			return {"reply": "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```", "usage": 0}
 
 		self.history.append({"role": "assistant", "content": reply})
