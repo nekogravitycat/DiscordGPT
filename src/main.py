@@ -160,6 +160,29 @@ async def quota(ctx: discord.ApplicationContext):
 	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```", ephemeral=True)
 
 
+@bot.slash_command(description="清除最後 N 個對答", guild_ids=all_servers)
+@discord.option("num", description="要清除的對答數", required=True)
+async def purge(ctx: discord.ApplicationContext, num: int):
+	if ctx.channel.id not in chats:
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
+		return
+
+	if num <= 0 or not isinstance(num, int):
+		await ctx.respond(f"```請輸入大於 0 的整數```", ephemeral=True)
+		return
+
+	chat = chats.get(ctx.channel.id, None)
+
+	history = chat.gpt.history
+	chat.gpt.history = history[:len(history) - min(num, len(history)) * 2]
+
+	if len(chat.gpt.history) == 0:
+		await ctx.respond(f"```已清除所有對答```")
+		
+	else:
+		await ctx.respond(f"```已清除 {num} 個對答```")
+
+
 @bot.slash_command(name="help", description="指令介紹", guild_ids=all_servers)
 async def help_info(ctx: discord.ApplicationContext):
 	await ctx.respond(help_message)
