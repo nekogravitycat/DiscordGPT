@@ -178,7 +178,7 @@ async def purge(ctx: discord.ApplicationContext, num: int):
 
 	if len(chat.gpt.history) == 0:
 		await ctx.respond(f"```已清除所有對答```")
-		
+
 	else:
 		await ctx.respond(f"```已清除 {num} 個對答```")
 

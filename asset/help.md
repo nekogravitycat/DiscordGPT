@@ -4,6 +4,7 @@
 ．`/brainwash [prompt]` 設定系統訊息（類似於洗腦）
 ．`/status` 顯示目前的系統設定
 ．`/forget` 讓機器人遺忘先前的對話
+．`/purge [num]` 刪除最後 n 個對答
 ．`/reset` 重設系統訊息
 ．`/quota` 查看自己的使用餘額
 ．`/set model [model]` 選擇自己的語言模型
