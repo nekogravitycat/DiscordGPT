@@ -77,8 +77,31 @@ async def stop_chat(ctx: discord.ApplicationContext):
 	await ctx.respond("掰啦⋯⋯不要太想我 (☍﹏⁰)")
 
 
-@bot.slash_command(description="讓 GPT 馬上遺忘先前的對話", guild_ids=all_servers)
-async def forget(ctx: discord.ApplicationContext):
+@bot.slash_command(description="遺忘最後 N 個對答", guild_ids=all_servers)
+@discord.option("num", description="要遺忘的對答數", required=True)
+async def forget(ctx: discord.ApplicationContext, num: int):
+	if ctx.channel.id not in chats:
+		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
+		return
+
+	if num <= 0 or not isinstance(num, int):
+		await ctx.respond(f"```請輸入大於 0 的整數```", ephemeral=True)
+		return
+
+	chat = chats.get(ctx.channel.id, None)
+
+	history = chat.gpt.history
+	chat.gpt.history = history[:len(history) - min(num, len(history)) * 2]
+
+	if len(chat.gpt.history) == 0:
+		await ctx.respond(f"```已遺忘所有對答```")
+
+	else:
+		await ctx.respond(f"```已遺忘最後 {num} 個對答```")
+
+
+@bot.slash_command(name="forget-all", description="遺忘所有對話", guild_ids=all_servers)
+async def forget_all(ctx: discord.ApplicationContext):
 	if ctx.channel.id not in chats:
 		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
 		return
@@ -158,29 +181,6 @@ async def quota(ctx: discord.ApplicationContext):
 
 	user = record.User(ctx.user.id)
 	await ctx.respond(f"```您目前的使用額度：${round(user.credits, 5)} USD```", ephemeral=True)
-
-
-@bot.slash_command(description="清除最後 N 個對答", guild_ids=all_servers)
-@discord.option("num", description="要清除的對答數", required=True)
-async def purge(ctx: discord.ApplicationContext, num: int):
-	if ctx.channel.id not in chats:
-		await ctx.respond(f"```機器人尚未加入此頻道，請先使用 /start_chat 指令```", ephemeral=True)
-		return
-
-	if num <= 0 or not isinstance(num, int):
-		await ctx.respond(f"```請輸入大於 0 的整數```", ephemeral=True)
-		return
-
-	chat = chats.get(ctx.channel.id, None)
-
-	history = chat.gpt.history
-	chat.gpt.history = history[:len(history) - min(num, len(history)) * 2]
-
-	if len(chat.gpt.history) == 0:
-		await ctx.respond(f"```已清除所有對答```")
-
-	else:
-		await ctx.respond(f"```已清除 {num} 個對答```")
 
 
 @bot.slash_command(name="help", description="指令介紹", guild_ids=all_servers)

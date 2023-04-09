@@ -6,8 +6,8 @@
 - `/stop-chat` *Stop chatting with the bot in this channel.*
 - `/brainwash [prompt]` *Set the system message (like brainwashing.)*
 - `/status` *Display the current system message.*
-- `/purge [num]` *Forget last n prompts and responds.*
-- `/forget` *Forget the chat history.*
+- `/forget [num]` *Forget last n prompts and responds.*
+- `/forget-all` *Forget the entire chat history.*
 - `/reset` *Set the system message to default.*
 - `/quota` *Check your quota.*
 - `/set-model [model]` *Set the GPT model for yourself.*
