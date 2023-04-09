@@ -33,7 +33,7 @@ class GPT:
 		self.__latest_chat_time = datetime.datetime.now()
 
 	async def chat(self, user: str, content: str, model: str) -> dict:
-		print(f"{model}/{user}: {content}")
+		print(f"{user}>{model}: {content}")
 		new_prompt = {"role": "user", "content": content}
 
 		# check prompt length
@@ -90,7 +90,7 @@ class GPT:
 			self.history.pop()
 			return {"reply": "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```", "usage": 0}
 
-		print(f"{model}/${usage}USD: {reply}")
+		print(f"{model}>{user}: {reply}")
 
 		self.history.append({"role": "assistant", "content": reply})
 

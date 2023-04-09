@@ -33,7 +33,7 @@ class Chat:
 						user.model = "gpt-3.5-turbo"
 
 					if user.credits <= 0 and not user.credits == -1:
-						await message.reply("```您已到達使用上限，請待下個月用量重置、或考慮贊助以增加許可用量```")
+						await message.reply("```您已到達使用上限，請考慮贊助以增加許可用量```")
 
 					else:
 						result = await self.gpt.chat(f"{message.author.id}", message.content, user.model)
