@@ -188,7 +188,7 @@ async def help_info(ctx: discord.ApplicationContext):
 	await ctx.respond(help_message)
 
 
-@bot.slash_command(description="Add quota to a user", guild_ids=config.admin_servers)
+@bot.slash_command(name="add-quota", description="Add quota to a user", guild_ids=config.admin_servers)
 @discord.option("user_id", description="user id", required=True)
 @discord.option("amount", description="amount", required=True)
 @discord.option("create_new_user", choices=[True, False], required=False, default=False)

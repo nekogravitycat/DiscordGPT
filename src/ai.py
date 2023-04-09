@@ -90,6 +90,8 @@ class GPT:
 			self.history.pop()
 			return {"reply": "```回答問題時出了點差錯，請再試一次。如果問題持續請通知管理員。```", "usage": 0}
 
+		print(f"{model}/${usage}USD: {reply}")
+
 		self.history.append({"role": "assistant", "content": reply})
 
 		self.__latest_chat_time = datetime.datetime.now()
