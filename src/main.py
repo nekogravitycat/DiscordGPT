@@ -45,7 +45,7 @@ class Chat:
 				user.save_data()
 
 			except Exception as e:
-				log(repr(e))
+				log(f"error in main.Chat.__reply_next(): {repr(e)}")
 
 			self.__messages.pop(0)
 			await self.__reply_next()
