@@ -164,7 +164,7 @@ async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
 	if model == "gpt-4" and not record.is_privileged([role.id for role in ctx.user.roles]):
 		log("no privilege")
-		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請考慮贊助以獲得使用許可量```", ephemeral=True)
+		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請聯繫管理員```", ephemeral=True)
 		return
 
 	user = record.User(ctx.user.id)
@@ -188,7 +188,7 @@ async def help_info(ctx: discord.ApplicationContext):
 	await ctx.respond(help_message)
 
 
-@bot.slash_command(name="add-quota", description="Add quota to a user", guild_ids=config.admin_servers)
+@bot.slash_command(name="add-quota", description="Add quota to a user", guild_ids=all_servers)
 @discord.option("user_id", description="user id", required=True)
 @discord.option("amount", description="amount", required=True)
 @discord.option("create_new_user", choices=[True, False], required=False, default=False)
@@ -223,7 +223,7 @@ async def add_quota(ctx: discord.ApplicationContext, user_id: str, amount: float
 	user.credits += amount
 	user.save_data()
 
-	result_message: str = f"**{user_name}**: ${round(old_credits, 5)} -> ${round(user.credits, 5)} (+${amount})"
+	result_message: str = f"{user_name}: ${round(old_credits, 5)} -> ${round(user.credits, 5)} (+${amount})"
 	log(result_message)
 	await ctx.respond(f"```{result_message}```", ephemeral=True)
 
