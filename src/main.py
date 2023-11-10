@@ -9,7 +9,6 @@ from src import channels
 config.load_config()
 bot: discord.Bot = discord.Bot(intents=discord.Intents.all())
 
-
 class Chat:
 	def __init__(self):
 		self.gpt: ai.GPT = ai.GPT()
@@ -39,7 +38,7 @@ class Chat:
 						result = await self.gpt.chat(f"{message.author.id}", message.content, user.model)
 						user.credits -= result["usage"]
 						reply = await message.reply(result["reply"])
-						if user.model == "gpt-4":
+						if user.model != "gpt-3.5-turbo":
 							await reply.add_reaction("⭐")
 
 				user.save_data()
@@ -155,14 +154,14 @@ async def reset(ctx: discord.ApplicationContext):
 	await ctx.respond(f"```設定更新：{chat.gpt.sys_prompt}```")
 
 
-supported_models = ["gpt-3.5-turbo", "gpt-4"]
+supported_models = ["gpt-3.5-turbo", "gpt-4", "gpt-4-1106-preview"]
 
 
 @bot.slash_command(name="set-model", description="選擇語言模型", guild_ids=all_servers)
 @discord.option("model", choices=supported_models)
 async def set_model(ctx: discord.ApplicationContext, model: str):
 	log(f"{ctx.user.name} set their model to {model}")
-	if model == "gpt-4" and not record.is_privileged([role.id for role in ctx.user.roles]):
+	if model != "gpt-3.5-turbo" and not record.is_privileged([role.id for role in ctx.user.roles]):
 		log("no privilege")
 		await ctx.respond("```您沒有權限訪問 GPT-4 模型，請聯繫管理員```", ephemeral=True)
 		return

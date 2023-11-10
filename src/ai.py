@@ -69,6 +69,8 @@ class GPT:
 				usage = r["usage"]["total_tokens"] / 1000 * 0.002
 			elif model == "gpt-4":
 				usage = r["usage"]["prompt_tokens"] / 1000 * 0.03 + r["usage"]["completion_tokens"] / 1000 * 0.06
+			elif model == "gpt-4-1106-preview":
+				usage = r["usage"]["prompt_tokens"] / 1000 * 0.01 + r["usage"]["completion_tokens"] / 1000 * 0.03
 
 		except openai.error.RateLimitError as e:
 			log(f"open.ai.error.RateLimitError:\n{repr(e)}")
