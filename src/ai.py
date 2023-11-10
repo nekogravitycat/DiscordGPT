@@ -28,6 +28,7 @@ def count_token(messages: list[dict]):
 
 class GPT:
 	def __init__(self):
+		self.client = openai.AsyncOpenAI()
 		self.sys_prompt: str = config.default_sys_prompt
 		self.history: list[dict] = []
 		self.__latest_chat_time = datetime.datetime.now()
@@ -53,7 +54,7 @@ class GPT:
 
 		try:
 			r = await asyncio.wait_for(
-				openai.ChatCompletion.acreate(
+				self.client.chat.completions.create(
 					model=model,
 					messages=sys+self.history,
 					max_tokens=config.max_generated_token,
@@ -61,7 +62,7 @@ class GPT:
 				),
 				timeout=config.api_timeout
 			)
-			reply = r["choices"][0]["message"]["content"]
+			reply = r.choices[0].message.content
 			reply = opencc.OpenCC("s2twp").convert(reply)
 
 			usage: float = 0
@@ -98,6 +99,3 @@ class GPT:
 
 		self.__latest_chat_time = datetime.datetime.now()
 		return {"reply": reply, "usage": usage*(1.0+config.fee_rate)}
-
-
-openai.api_key = os.environ.get("openai_api_key")
