@@ -1,4 +1,3 @@
-import os
 import asyncio
 import openai
 import tiktoken
@@ -73,7 +72,7 @@ class GPT:
 			elif model == "gpt-4-1106-preview":
 				usage = r["usage"]["prompt_tokens"] / 1000 * 0.01 + r["usage"]["completion_tokens"] / 1000 * 0.03
 
-		except openai.error.RateLimitError as e:
+		except openai.RateLimitError as e:
 			log(f"open.ai.error.RateLimitError:\n{repr(e)}")
 			self.history.pop()
 			return {"reply": "```目前使用量過大，請等一段時間後再試一次```", "usage": 0}
@@ -83,7 +82,7 @@ class GPT:
 			self.history.pop()
 			return {"reply": "```等待執行呼叫 API 時間過久，請再試一次。如果問題持續請通知管理員。（asyncio.TimeoutError）```", "usage": 0}
 
-		except openai.error.Timeout as e:
+		except openai.APITimeoutError as e:
 			log(f"openai.error.Timeout\n{repr(e)}")
 			self.history.pop()
 			return {"reply": "```等待 API 回復時間過久，請再試一次。如果問題持續請通知管理員。（openai.error.Timeout）```", "usage": 0}
