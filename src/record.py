@@ -9,7 +9,7 @@ class User:
 	def __init__(self, user_id: int):
 		self.user_id: int = user_id
 		self.model: str = "gpt-3.5-turbo"
-		self.credits: float = 0
+		self.credits: float = 0.0
 		self.privileged: bool = False
 		self.load_data()
 
