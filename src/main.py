@@ -139,7 +139,7 @@ async def status(ctx: discord.ApplicationContext):
 		return
 
 	chat = chats.get(ctx.channel.id)
-	await ctx.respond(f"```目前設定：{chat.gpt.sys_prompt}```")
+	await ctx.respond(f"目前設定：```{chat.gpt.sys_prompt}```")
 
 
 @bot.slash_command(description="恢復 GPT 的預設性格", guild_ids=all_servers)
